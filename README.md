@@ -1,7 +1,7 @@
 # LAN-Tube
 LAN Tube is an Open Source Youtube like web app for your home network.
 
-Please note that this is a React version of the project <a href="https://github.com/FotieMConstant/LAN-Tube" target="_BLANK">LAN-Tube</a>
+Please note that this is a React version of the project <a href="https://github.com/FotieMConstant/LAN-Tube">LAN-Tube</a>
 
 ![logo](https://user-images.githubusercontent.com/42372656/60809245-1dd79980-a182-11e9-9143-7e11995148be.png)
 
