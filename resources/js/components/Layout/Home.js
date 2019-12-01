@@ -30,6 +30,13 @@ import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
+import InputBase from '@material-ui/core/InputBase';
+import { fade } from '@material-ui/core/styles';
+import SearchIcon from '@material-ui/icons/Search';
+import Brightness4Icon from '@material-ui/icons/Brightness4';
+import { inherits } from 'util';
+import './index.css';
+import {MuiThemeProvider,createMuiTheme} from '@material-ui/core';
 
 const drawerWidth = 190;
 
@@ -100,6 +107,43 @@ const useStyles = makeStyles(theme => ({
   nested: {
     paddingLeft: theme.spacing(4),
   },
+  search: {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    '&:hover': {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing(1),
+      width: 'auto',
+    },
+  },
+  searchIcon: {
+    width: theme.spacing(7),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputRoot: {
+    color: 'inherit',
+  },
+  inputInput: {
+    padding: theme.spacing(1, 1, 1, 7),
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: 120,
+      '&:focus': {
+        width: 200,
+      },
+    },
+  },
 }));
 
 function Home() {
@@ -133,6 +177,7 @@ function Home() {
 
   const [loading,setLoading] = React.useState(false);
 
+
   useEffect( () =>{
     setLoading(true);
     axios.get('http://127.0.0.1:8000/Content')
@@ -140,12 +185,50 @@ function Home() {
       console.log(response)
       setContents(response.data)
       setLoading(false);
+     // console.log(response.data.length);
+     // setLoad(response.data.length)
     })
     .catch(err => {
       console.log(err)
     })
   },[])
 
+  function Media(props) {
+    const { loading1 = false } = props;
+    return (
+      <Grid container wrap='wrap'>
+        {(loading ? Array.from(new Array(10)) : contents).map((content, index) => (
+          <Box key={index} width={210} marginRight={3} my={5}>
+            {content ? (
+              <video style={{ width: 210, height: 118 }} alt={content.title} src={content.location} />
+            ) : (
+              <Skeleton variant="rect" width={210} height={118} />
+            )}
+  
+            {content ? (
+              <Box pr={2}>
+                <Typography gutterBottom variant="body2">
+                  {content.title}
+                </Typography>
+                <Typography display="block" variant="caption" color="textSecondary">
+                  {content.category}
+                </Typography>
+              </Box>
+               ) : (
+              <Box pt={0.5}>
+                <Skeleton />
+                <Skeleton width="60%" />
+              </Box>
+            )}
+          </Box>
+        ))}
+      </Grid>
+    );
+  }
+  Media.propTypes = {
+    loading1: PropTypes.bool,
+  };
+  
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -166,9 +249,31 @@ function Home() {
           >
             <MenuIcon />
           </IconButton>
+          <div className='headername'>
           <Typography variant="h6" noWrap>
             LANTUBE
           </Typography>
+          </div>
+          <div className='toggle'>
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+            <InputBase
+              placeholder="Search…"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ 'aria-label': 'search' }}
+            />
+          </div>
+          </div>
+          <div>
+           <Brightness4Icon 
+             color="inherit"
+           />
+          </div>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -233,6 +338,24 @@ function Home() {
             </ListItemIcon>
             <ListItemText primary="Starred" />
           </ListItem>
+          <ListItem button className={classes.nested}>
+            <ListItemIcon>
+              <StarBorder />
+            </ListItemIcon>
+            <ListItemText primary="Starred" />
+          </ListItem>
+          <ListItem button className={classes.nested}>
+            <ListItemIcon>
+              <StarBorder />
+            </ListItemIcon>
+            <ListItemText primary="Starred" />
+          </ListItem>
+          <ListItem button className={classes.nested}>
+            <ListItemIcon>
+              <StarBorder />
+            </ListItemIcon>
+            <ListItemText primary="Starred" />
+          </ListItem>
         </List>
       </Collapse>
       </List>
@@ -240,20 +363,11 @@ function Home() {
       </Drawer>
       <main className={classes.content}>
        <div className={classes.toolbar} />
-          <div>
-           {loading ?  (<div><Skeleton variant="rect" width={210} height={118} /> <Skeleton /> <Skeleton width="60%" /></div>):
-             contents.map(content =>(
-             <Box key={content.id} width={210} marginRight={0.5} my={5}>
-               <video style={{ width: 210, height: 118 }} src={content.location} alt={content.title} controls/>
-               <Typography gutterBottom variant="body2">
-                 {content.title}
-               </Typography>
-               <Typography gutterBottom variant="body2">
-                 {content.category}
-               </Typography>
-             </Box>
-           ))}
+        <Paper>
+          <div className='shift'>
+           {loading ?  (<div><Media loading1/></div>) : <Media />}
           </div>
+        </Paper>
       </main>
   </div>
   );

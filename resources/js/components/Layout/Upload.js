@@ -20,22 +20,16 @@ import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
 import {Link} from 'react-router-dom'
 import CategoryRoundedIcon from '@material-ui/icons/CategoryRounded';
 import Collapse from '@material-ui/core/Collapse';
-import ListSubheader from '@material-ui/core/ListSubheader';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import StarBorder from '@material-ui/icons/StarBorder';
-import Paper from '@material-ui/core/Paper';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import TextField from '@material-ui/core/TextField';
-import Snackbar from '@material-ui/core/Snackbar';
 import './style.scss';
-import {AnchorButton, Intent} from "@blueprintjs/core";
-import axios from 'axios';
-import Button from '@material-ui/core/Button';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import InputBase from '@material-ui/core/InputBase';
+import { fade } from '@material-ui/core/styles';
+import SearchIcon from '@material-ui/icons/Search';
+import './index.css';
+import Upex from './Upex';
+
 const drawerWidth = 190;
 
 const useStyles = makeStyles(theme => ({
@@ -108,6 +102,43 @@ const useStyles = makeStyles(theme => ({
       marginTop: theme.spacing(2),
     },
   },
+  search: {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    '&:hover': {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing(1),
+      width: 'auto',
+    },
+  },
+  searchIcon: {
+    width: theme.spacing(7),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputRoot: {
+    color: 'inherit',
+  },
+  inputInput: {
+    padding: theme.spacing(1, 1, 1, 7),
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: 120,
+      '&:focus': {
+        width: 200,
+      },
+    },
+  },
 }));
 
 function Upload() {
@@ -132,61 +163,7 @@ function Upload() {
   const handleClick = () => {
     setOpened(!open1);
   };
-
-  //state of the uploqded informations
-
-  const [title , setTitle] = React.useState({title:''});
-
-  function SetTitle(e){
-     setTitle({title:e.target.value})
-  }
-
-  const [category , setCat] = React.useState({category:''});
-
-  function SetCategory(e){
-    setCat({category:e.target.value})
- }
-
-  const [File, setFile] = React.useState({file:null});
-
-  function onFileChanges(e){
-    setFile({file:e.target.files[0]})
-    console.log(e.target.files[0]);
-    setDropName({Name:e.target.files[0].name})
-  }
-
-  const [dropName,setDropName] = useState({Name:'Click here to Select a File then Drag and Drop'})
-
-  //function to upload the file,title and category
-
-  const [percent, setCompleted] = useState(0);//state of the loaing animation
-
-  function onSubmitInfo(e){
-    //const [percent, setCompleted] = useState(0);
-    e.preventDefault();
-    const content = new FormData();
-    content.append('file',File.file,File.file.name);
-    content.append('title',title.title);
-    content.append('category',category.category);
-    //* Another way
-    // const content = {
-    //   title : title.title,
-    //   category : category.category,
-    // }
-    //*
-    const progress = {
-      onUploadProgress :(ProgressEvent) => {
-        var percentCompleted = Math.round((ProgressEvent.loaded * 100) / ProgressEvent.total);
-        setCompleted({percent : percentCompleted});
-        console.log(percentCompleted);
-        console.log(percent);
-      }
-    }
-    axios.post('http://127.0.0.1:8000/content/store',content,progress)
-      .then(response => console.log(response.data))
-      .catch(error => console.log(error.response));
-  }
-
+  
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -208,11 +185,26 @@ function Upload() {
           >
             <MenuIcon />
           </IconButton>
+          <div className='headername'>
           <Typography variant="h6" noWrap>
             LANTUBE
           </Typography>
+          </div>
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+            <InputBase
+              placeholder="Search…"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ 'aria-label': 'search' }}
+            />
+          </div>
         </Toolbar>
-      </AppBar>
+       </AppBar>
       <Drawer
         variant="permanent"
         className={clsx(classes.drawer, {
@@ -271,12 +263,7 @@ function Upload() {
         </ListItem>
         <Collapse in={open1} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          <ListItem
-           button
-           className={classes.nested}
-           selected={selectedIndex === 3}
-           onClick={event => handleListItemClick(event, 3)}
-          >
+          <ListItem button className={classes.nested} selected={selectedIndex === 3} onClick={event => handleListItemClick(event, 3)}>
             <ListItemIcon>
               <StarBorder />
             </ListItemIcon>
@@ -289,64 +276,7 @@ function Upload() {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        <Paper>
-           <form onSubmit={onSubmitInfo} encType='multipart/form-data'>
-            <div className="inner-container" style={{ display: "flex", flexDirection: "column"}}>
-              <div className="sub-header">Drag files here</div>
-                <div className="draggable-container">
-                  <input
-                   type="file"
-                   id="file-browser-input"
-                   name="file"
-                   onDragOver={(e) => {e.preventDefault();e.stopPropagation();}}
-                   onChange={onFileChanges}
-                   required
-                  />
-                 <div className="files-preview-container"></div>
-                    <div className="helper-text">{dropName.Name}</div>
-                 <div className="file-browser-container">
-                </div>
-              </div>
-                <FormControl required>
-                 <InputLabel htmlFor="age-required">Category</InputLabel>
-                  <Select
-                   required
-                   name="category"
-                   value={category.category}
-                   onChange={SetCategory}
-                   inputProps={{id: 'category-required',}}
-                   style={{ margin: 8 ,display:'flex', flexWrap:'wrap',minWidth: 120,paddingTop:5,paddingBottom:5}}>
-                   <MenuItem>
-                    <em>None</em>
-                   </MenuItem>
-                   <MenuItem value='Music'>Music</MenuItem>
-                   <MenuItem value='Film'>Film</MenuItem>
-                   <MenuItem value='Series'>Series</MenuItem>
-                   <MenuItem value='Tutorial'>Tutorials</MenuItem>
-                   <MenuItem value='Others'>Others</MenuItem>
-                  </Select>
-                </FormControl>
-                <TextField
-                   id="standard-full-width"
-                   label="Title"
-                   name='title'
-                   value={title.title}
-                   onChange={SetTitle}
-                   style={{ margin: 8 ,display:'flex', flexWrap:'wrap'}}
-                   placeholder=" A Title of the file"
-                   fullWidth
-                   margin="normal"
-                   margin="normal"
-                   InputLabelProps={{shrink: true,}}
-                   required
-                />
-              <Button variant='contained' type='submit' color='secondary'>Upload</Button>
-            </div>
-          </form>
-          <div className={classes.root10}>
-           <LinearProgress variant="determinate" color='secondary' value={percent} />
-         </div>
-        </Paper>
+           <Upex />
       </main>
     </div>
   );
