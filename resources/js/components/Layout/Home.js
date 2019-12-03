@@ -33,10 +33,16 @@ import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
 import { fade } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
+import ButtonBase from '@material-ui/core/ButtonBase';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import { inherits } from 'util';
 import './index.css';
 import {MuiThemeProvider,createMuiTheme} from '@material-ui/core';
+import PlayArrowRoundedIcon from '@material-ui/icons/PlayArrowRounded';
+import lightBlue from '@material-ui/core/colors/lightBlue';
+
+
+const accent = lightBlue[50];
 
 const drawerWidth = 190;
 
@@ -144,6 +150,52 @@ const useStyles = makeStyles(theme => ({
       },
     },
   },
+  image: {
+    position: 'relative',
+    height: 200,
+    [theme.breakpoints.down('xs')]: {
+      width: '100% !important', // Overrides inline-style
+      height: 100,
+    },
+    '&:hover, &$focusVisible': {
+      zIndex: 1,
+      '& $imageBackdrop': {
+        opacity: 0.15,
+      },
+      '& $imageMarked': {
+        opacity: 0,
+      },
+      '& $imageTitle': {
+        border: '4px solid currentColor',
+      },
+    },
+  },
+  focusVisible: {},
+  imageBackdrop: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: theme.palette.common.black,
+    opacity: 0.4,
+    transition: theme.transitions.create('opacity'),
+  },
+  imageTitle: {
+    position:'relative',
+    padding: `${theme.spacing(2)}px ${theme.spacing(4)}px ${theme.spacing(1) + 6}px`,
+  },
+  imageMarked: {
+    height: 8,
+    fontSize: '1.8rem',
+    width: 20,
+    alignItems: 'center',
+    backgroundColor: theme.palette.common.inherits,
+    position: 'absolute',
+   // bottom: -2,
+    left: 'calc(50% - 9px)',
+    transition: theme.transitions.create('opacity'),
+    color: 'accent',
+  },
 }));
 
 function Home() {
@@ -197,10 +249,24 @@ function Home() {
     const { loading1 = false } = props;
     return (
       <Grid container wrap='wrap'>
-        {(loading ? Array.from(new Array(10)) : contents).map((content, index) => (
+        {(loading ? Array.from(new Array(30)) : contents).map((content, index) => (
           <Box key={index} width={210} marginRight={3} my={5}>
+
             {content ? (
-              <video style={{ width: 210, height: 118 }} alt={content.title} src={content.location} />
+              <ButtonBase
+               focusRipple
+               key={content.id}
+               className={classes.image}
+               focusVisibleClassName={classes.focusVisible}
+               style={{width: 210,height: 118}}
+               component={Link} to={`Player/${content.id}`}
+              >
+                <video style={{ width: 210, height: 118,backgroundSize: 'cover'}} alt={content.title} src={content.location}/>
+                <span className={classes.imageBackdrop} />
+                <span className={classes.imageButton}>
+                   <PlayArrowRoundedIcon  className={classes.imageMarked}/>
+                </span>
+              </ButtonBase>
             ) : (
               <Skeleton variant="rect" width={210} height={118} />
             )}
@@ -254,7 +320,6 @@ function Home() {
             LANTUBE
           </Typography>
           </div>
-          <div className='toggle'>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
@@ -267,12 +332,6 @@ function Home() {
               }}
               inputProps={{ 'aria-label': 'search' }}
             />
-          </div>
-          </div>
-          <div>
-           <Brightness4Icon 
-             color="inherit"
-           />
           </div>
         </Toolbar>
       </AppBar>

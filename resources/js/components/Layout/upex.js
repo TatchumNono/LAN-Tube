@@ -9,7 +9,12 @@ import TextField from '@material-ui/core/TextField';
 import './style.scss';
 import './index.css';
 import Button from '@material-ui/core/Button';
+import Snackbar from '@material-ui/core/Snackbar'
+import CloseIcon from '@material-ui/icons/Close';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import Slide from '@material-ui/core/Slide';
+import CustomSnack from './CustomSnack';
 
 class Upex extends Component {
   constructor(props) {
@@ -19,12 +24,16 @@ class Upex extends Component {
         title:'',
         category:'',
         Name:'Click here to Select and Drop files ',
-        completed:0
+        completed:0,
+        snack:false,
+        error:false,
+        message:''
       }
       this.onSubmitInfo = this.onSubmitInfo.bind(this);
       this.onFileChanges = this.onFileChanges.bind(this);
       this.onCategory = this.onCategory.bind(this);
       this.onTitle = this.onTitle.bind(this);
+      this.handleClose = this.handleClose.bind(this);
   }
 
    onCategory(e){
@@ -57,18 +66,31 @@ class Upex extends Component {
         var percentCompleted = Math.round((ProgressEvent.loaded * 100) / ProgressEvent.total);
         this.setState({completed : percentCompleted});
         console.log({percentCompleted});
-        console.log({completed});
+        if (percentCompleted == 100) {
+          this.setState({snack:true})
+        }
       }
     }
     axios.post('http://127.0.0.1:8000/content/store',content,progress)
       .then(response => console.log(response.data))
-      .catch(error => console.log(error.response));
+      .catch(error =>{console.log(error.response.data.message)
+         console.log(error.response.data.file)
+          this.setState({error:true})
+          this.setState({message:error.response.data.message})
+      });
     }
   
    onFileChanges(e){
     this.setState({file:e.target.files[0]})
     console.log(e.target.files[0]);
     this.setState({Name:e.target.files[0].name})
+   }
+
+   handleClose(event, reason){
+    if (reason === 'clickaway') {
+      return;
+    }
+     this.setState({snack:false})
    }
 
   render() {
@@ -80,9 +102,7 @@ class Upex extends Component {
               <div className="sub-header">Drag files here</div>
                 <div className="draggable-container">
                   <input
-                   type="file"
-                   webkitdirectory
-                   mozdirectory 
+                   type="file" 
                    id="file-browser-input"
                    name="file"
                    onDragOver={(e) => {e.preventDefault();e.stopPropagation();}}
@@ -133,6 +153,44 @@ class Upex extends Component {
           <div className='pro'>
            <LinearProgress variant="determinate" color='secondary' value={this.state.completed} />
          </div>
+         <Snackbar
+           anchorOrigin={{
+           vertical: 'bottom',
+           horizontal: 'right',
+           }}
+           open={this.state.snack}
+           autoHideDuration={5000}
+           onClose={this.handleClose}
+           //TransitionComponent={this.state.transition}
+           ContentProps={{
+            'aria-describedby': 'message-id',
+           }}
+          >
+            <CustomSnack
+              onClose={this.handleClose}
+              variant="success"
+              message="This file was uploaded Successfully!"
+           />
+          </Snackbar>
+          <Snackbar
+           anchorOrigin={{
+           vertical: 'bottom',
+           horizontal: 'right',
+           }}
+           open={this.state.error}
+           autoHideDuration={5000}
+           onClose={this.handleClose}
+           //TransitionComponent={this.state.transition}
+           ContentProps={{
+            'aria-describedby': 'message-id',
+           }}
+          >
+            <CustomSnack
+              onClose={this.handleClose}
+              variant="error"
+              message={this.state.message}
+           />
+          </Snackbar>
         </Paper>
       </div>
     );

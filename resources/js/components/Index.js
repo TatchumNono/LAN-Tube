@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Home from './Layout/Home';
 import Upload from './Layout/Upload';
+import Player from './Layout/Player';
 import {MuiThemeProvider,createMuiTheme} from '@material-ui/core';
 import {pink,purple} from '@material-ui/core/colors';
 import {
@@ -27,6 +28,7 @@ function Index() {
                <Switch>
                    <Route exact path='/' component={Home}/>
                    <Route  path='/Upload' component={Upload}/>
+                   <Route  path='/Player/:id' component={Player}/>
                </Switch>
            </BrowserRouter>
          </MuiThemeProvider>
